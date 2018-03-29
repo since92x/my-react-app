@@ -99,25 +99,21 @@ class Line extends React.Component {
                 >
                     {
                         lines.map(line => (
-                            <g key={`${line.start.x}${line.start.y}${line.end.x}${line.end.y}`}>
+                            <React.Fragment key={`${line.start.x}${line.start.y}${line.end.x}${line.end.y}`}>
                                 <circle cx={line.start.x} cy={line.start.y} r="4" fill="blue" />
                                 <line x1={line.start.x} y1={line.start.y} x2={line.end.x} y2={line.end.y}
                                     strokeWidth="2px" stroke="#000"
                                 />
                                 <circle cx={line.end.x} cy={line.end.y} r="4" fill="blue" />
-                                <foreignObject style={{
-                                    background: "transparent"
-                                }}>
-                                    <body xmlns="http://www.w3.org/1999/xhtml">
-                                        <div style={{ position: "absolute", left: line.end.x, top: line.end.y }}>
-                                            <Select defaultValue={"1"} style={{ width: "auto" }} size="small" >
-                                                <Option value="1">type1</Option>
-                                                <Option value="2">type2</Option>
-                                            </Select>
-                                        </div>
-                                    </body>
+                                <foreignObject>
+                                    <div style={{ position: "absolute", left: line.end.x, top: line.end.y }}>
+                                        <Select defaultValue={"1"} style={{ width: "auto" }} size="small" >
+                                            <Option value="1">type1</Option>
+                                            <Option value="2">type2</Option>
+                                        </Select>
+                                    </div>
                                 </foreignObject>
-                            </g>))
+                            </React.Fragment>))
                     }
                 </svg>
             </div>
