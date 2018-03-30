@@ -1,8 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Select } from 'antd';
-
-const { Option } = Select;
+import { Button } from 'antd';
 
 class Line extends React.Component {
     static propTypes = {
@@ -28,6 +26,7 @@ class Line extends React.Component {
     };
     MouseDown = e => {
         e.preventDefault();
+        console.log("down: ", this.line);
         this.mouse = {};
         this.line = {};
         this.drag = true;
@@ -41,13 +40,22 @@ class Line extends React.Component {
         };
     }
     MouseUp = e => {
+        console.log("up: ", this.line);
         e.preventDefault();
         this.drag = false;
         if (this.isValidArea()) {
+            this.setState(prevState => ({
+                ...prevState,
+                lines: prevState.lines.map(line => ({
+                    ...line,
+                    decorator: true
+                }))
+            }));
             this.props.transData({ lines: this.state.lines });
         }
     }
     MouseMove = e => {
+        console.log("move: ", this.line);
         e.preventDefault();
         if (this.drag) {
             this.setMousePosition(e);
@@ -74,11 +82,42 @@ class Line extends React.Component {
         }
     }
     isValidArea = () => {
-        const MINTH = 30;
-        const { start, end } = this.line;
-        const dx = start.x - end.x;
-        const dy = start.y - end.y;
-        return Math.sqrt(dx * dx, dy * dy) >= MINTH;
+        if (this.line && 2 === Object.getOwnPropertyNames(this.line).length) {
+            const MINTH = 30;
+            const { start, end } = this.line;
+            const dx = start.x - end.x;
+            const dy = start.y - end.y;
+            return Math.sqrt(dx * dx, dy * dy) >= MINTH;
+        }
+        return false;
+    }
+    calcArrowPos = (start, end) => { // solve 
+        const ARROWLEN = 20;
+        const mid = {
+            x: (start.x + end.x) / 2,
+            y: (start.y + end.y) / 2
+        };
+        const shadowStart = {
+            x: (start.x + start.y + end.x - end.y) / 2,
+            y: (-start.x + start.y + end.x + end.y) / 2
+        };
+        const shadowEnd = {
+            x: (start.x - start.y + end.x + end.y) / 2,
+            y: (start.x + start.y - end.x + end.y) / 2
+        };
+        const [dx, dy] = [mid.x - start.x, mid.y - start.y];
+        const SHADOWLEN = Math.sqrt(dx * dx + dy * dy);
+        const EPSLION = ARROWLEN / SHADOWLEN / 2;
+        return {
+            start: {
+                x: mid.x + EPSLION * (shadowStart.x - mid.x),
+                y: mid.y + EPSLION * (shadowStart.y - mid.y)
+            },
+            end: {
+                x: mid.x + EPSLION * (shadowEnd.x - mid.x),
+                y: mid.y + EPSLION * (shadowEnd.y - mid.y)
+            }
+        };
     }
     render() {
         const { lines } = this.state;
@@ -97,23 +136,76 @@ class Line extends React.Component {
                         height: "100%"
                     }}
                 >
+                    <defs>
+                        <marker id="arrow" markerWidth="10" markerHeight="10" refX="0" refY="3" orient="auto" markerUnits="strokeWidth" viewBox="0 0 20 20">
+                            <path d="M0,0 L0,6 L9,3 z" fill="rgba(251, 166, 75, 1)" />
+                        </marker>
+                    </defs>
                     {
-                        lines.map(line => (
-                            <React.Fragment key={`${line.start.x}${line.start.y}${line.end.x}${line.end.y}`}>
-                                <circle cx={line.start.x} cy={line.start.y} r="4" fill="blue" />
-                                <line x1={line.start.x} y1={line.start.y} x2={line.end.x} y2={line.end.y}
-                                    strokeWidth="2px" stroke="#000"
-                                />
-                                <circle cx={line.end.x} cy={line.end.y} r="4" fill="blue" />
-                                <foreignObject>
-                                    <div style={{ position: "absolute", left: line.end.x, top: line.end.y }}>
-                                        <Select defaultValue={"1"} style={{ width: "auto" }} size="small" >
-                                            <Option value="1">type1</Option>
-                                            <Option value="2">type2</Option>
-                                        </Select>
-                                    </div>
-                                </foreignObject>
-                            </React.Fragment>))
+                        lines.map((line, index) => {
+                            const arrowPos = this.calcArrowPos(line.start, line.end);
+                            if (line.direction)[arrowPos.start, arrowPos.end] = [arrowPos.end, arrowPos.start];
+                            return (
+                                <React.Fragment key={`${line.start.x}${line.start.y}${line.end.x}${line.end.y}`}>
+                                    <circle cx={line.start.x} cy={line.start.y} r="4" fill="blue" />
+                                    <line x1={line.start.x} y1={line.start.y} x2={line.end.x} y2={line.end.y}
+                                        strokeWidth="2px" stroke="#000"
+                                    />
+                                    <circle cx={line.end.x} cy={line.end.y} r="4" fill="blue" />
+                                    {
+                                        line.decorator && <React.Fragment>
+                                            <line x1={arrowPos.start.x} y1={arrowPos.start.y} x2={arrowPos.end.x} y2={arrowPos.end.y} stroke="rgba(251, 166, 75, 1)" strokeWidth="2" markerEnd="url(#arrow)" />
+                                            <foreignObject>
+                                                <div ref={ref => this[`lineOperator${index}`] = ref}
+                                                    style={{ 
+                                                    position: "relative", 
+                                                    left: line.end.x - 100, top: line.end.y + 10, 
+                                                    display: "flex", flex: "0 0 auto", 
+                                                    justifyContent: "space-between",
+                                                    opacity: .1,
+                                                    transition: "opacity 1s ease-in-out"
+                                                }}
+                                                    onMouseOver={() => { this[`lineOperator${index}`].style.opacity = "1"; }}
+                                                    onMouseLeave={() => { this[`lineOperator${index}`].style.opacity = ".1"; }}
+                                                >
+                                                    <Button type="primary" size="small" onClick={e => {
+                                                        e.preventDefault();
+                                                        this.setState(prevState => {
+                                                            const nextState = {
+                                                                lines: prevState.lines.map((l, i) => {
+                                                                    return i === index ? {
+                                                                        ...l,
+                                                                        direction: !l.direction
+                                                                    } : l;
+                                                                })
+                                                            };
+                                                            this.props.transData(nextState);
+                                                            return {
+                                                                ...prevState,
+                                                                ...nextState
+                                                            };
+                                                        });
+                                                    }}>反向</Button>
+                                                    <Button type="danger" size="small" onClick={e => {
+                                                        e.preventDefault();
+                                                        this.setState(prevState => {
+                                                            const nextState = {
+                                                                lines: [...prevState.lines.slice(0, index), ...prevState.lines.slice(index + 1, prevState.lines.length)]
+                                                            };
+                                                            this.props.transData(nextState);
+                                                            return {
+                                                                ...prevState,
+                                                                ...nextState
+                                                            };
+                                                        });
+                                                    }}>删除</Button>
+                                                </div>
+                                            </foreignObject>
+                                        </React.Fragment>
+                                    }
+                                </React.Fragment>
+                            );
+                        })
                     }
                 </svg>
             </div>
