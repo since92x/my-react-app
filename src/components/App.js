@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { NavLink, Switch, Route, Redirect } from 'react-router-dom';
 import Home from './home';
 import Dashboard from './dashboard';
+import { About } from './about';
 
 class App extends React.Component {
     static propTypes = {
@@ -19,10 +20,13 @@ class App extends React.Component {
                     <NavLink exact to="/">Home</NavLink>
                     {`|`}
                     <NavLink to="/dashboard">dashboard</NavLink>
+                    {`|`}
+                    <NavLink to="/about">about</NavLink>
                 </div>
                 <Switch>
                     <Route exact path="/" component={Home} />
                     <Route path="/dashboard" component={Dashboard} />
+                    <Route path="/about" component={About} />
                     <Redirect to="/" />
                 </Switch>
             </div>
