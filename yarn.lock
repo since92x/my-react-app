@@ -6275,6 +6275,11 @@ open@^8.0.9, open@^8.4.0:
     is-docker "^2.1.1"
     is-wsl "^2.2.0"
 
+opencv-wasm@^4.3.0-10:
+  version "4.3.0-10"
+  resolved "http://npm.baijia.com/opencv-wasm/-/opencv-wasm-4.3.0-10.tgz#4cf2c07fb3519a858f7111b7d80e07ec09f6a70e"
+  integrity sha512-EWmWLUzp2suoc6N44Y4ouWT85QwvShx23Q430R+lp6NyS828bjQn6mCgA3NJ6Z/S59aaTeeu+RhqPQIJIYld1w==
+
 optionator@^0.8.1:
   version "0.8.3"
   resolved "https://registry.yarnpkg.com/optionator/-/optionator-0.8.3.tgz#84fa1d036fe9d3c7e21d99884b601167ec8fb495"
@@ -8453,6 +8458,10 @@ walker@^1.0.7:
   integrity sha512-ts/8E8l5b7kY0vlWLewOkDXMmPdLcVV4GmOQLyxuSswIJsweeFZtAsMF7k1Nszz+TYBQrlYRmzOnr398y1JemQ==
   dependencies:
     makeerror "1.0.12"
+
+"wasm-lib@link:wasm-lib/pkg":
+  version "0.0.0"
+  uid ""
 
 watchpack@^2.3.1:
   version "2.4.0"
